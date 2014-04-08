@@ -1,0 +1,4 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/AddEvent" android:checkable="false" android:title="Add New Event" android:visible="true" android:titleCondensed="AddEvent"></item>
+
+</menu>
