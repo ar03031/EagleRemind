@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 public class SetEventLocation extends android.support.v4.app.FragmentActivity
@@ -117,7 +116,8 @@ public class SetEventLocation extends android.support.v4.app.FragmentActivity
      * Called by Location Services if the attempt to
      * Location Services fails.
      */
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         /*
          * Google Play services can resolve some errors it detects.
