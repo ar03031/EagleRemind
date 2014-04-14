@@ -1,61 +1,104 @@
 package data.comm.eagleRemind;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
+import java.util.Calendar;
+import java.util.List;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.*;
-
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CalendarView.OnDateChangeListener;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+import data.comm.eagleRemind.MySQLiteHelper;
+import data.comm.eagleRemind.MapEvent;
+
+import com.google.android.gms.maps.model.LatLng;
 
 public class NewEventActivity extends Activity {
+
 	public static final String PREFS_NAME = "objectsPrefFile";
-	protected int newEventMonth = 0;
-	protected int newEventDay = 0;
-	protected int newEventYear = 0;
+	public int newEventMonth = 0;
+	public int newEventDay = 0;
+	public int newEventYear = 0;
+	public Time t = new Time();
 	protected double newLat;
 	protected double newLong;
+	MySQLiteHelper db = new MySQLiteHelper(this);
+	MapEvent me = new MapEvent();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
-		final MapEvent me = new MapEvent();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_event);
+
+		// Get the intent. If another Activity wants to Edit an event, run
+		// accordingly.
+		final Bundle extras = getIntent().getExtras();
+		TimePicker timeView = (TimePicker) findViewById(R.id.newEventTime);
 		CalendarView view = (CalendarView) findViewById(R.id.addEventCalendar);
 
+		// If editing an entry...
+		if (extras != null) {
+			// Set Relevant fields and variables.
+			EditText nameEdit = (EditText) findViewById(R.id.eventName);
+			nameEdit.setText(extras.getString("eventName"));
+			me.setName(extras.getString("eventName"));
+
+			// Set the Date and Time
+			Calendar calendar2 = Calendar.getInstance();
+			calendar2.setTimeInMillis(extras.getLong("eventTimeDate"));
+			timeView.setCurrentHour(calendar2.get(Calendar.HOUR));
+			timeView.setCurrentMinute(calendar2.get(Calendar.MINUTE));
+			newEventMonth = calendar2.get(Calendar.MONTH);
+			newEventDay = calendar2.get(Calendar.DAY_OF_MONTH);
+			newEventYear = calendar2.get(Calendar.YEAR);
+			t.set(0, calendar2.get(Calendar.MINUTE),
+					calendar2.get(Calendar.MONTH), newEventDay, newEventMonth,
+					newEventYear);
+			view.setDate(extras.getLong("eventTimeDate"), true, false);
+
+			// Set the Latitude and Longitude
+			EditText editLong = (EditText) findViewById(R.id.newEventLongitude);
+			EditText editLat = (EditText) findViewById(R.id.newEventLatitude);
+			editLat.setText(Double.toString(extras.getDouble("eventLatitude")));
+			editLong.setText(Double.toString(extras.getDouble("eventLongitude")));
+			newLat = extras.getDouble("eventLatitude");
+			newLong = extras.getDouble("eventLongitude");
+		}
+
+		// When the Date changes, make sure the activity knows.
 		view.setOnDateChangeListener(new OnDateChangeListener() {
 
 			@Override
 			public void onSelectedDayChange(CalendarView arg0, int year,
 					int month, int date) {
-				Toast.makeText(getApplicationContext(),
-						(month + 1) + "/" + date + "/" + year, 4000).show();
 				newEventMonth = month;
 				newEventDay = date;
 				newEventYear = year;
 			}
 		});
 
+		// When the Time changes, make sure the activity knows.
+		timeView.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+
+			@Override
+			public void onTimeChanged(TimePicker timeView, int hourOfDay,
+					int minute) {
+				t.set(0, minute, hourOfDay, newEventDay, newEventMonth,
+						newEventYear);
+
+			}
+		});
+
+		// Set the location by opening the 'SetEventLocation' activity and
+		// choosing a point on the map. Return the Latitude and Longitude.
 		Button setLocationButton = (Button) findViewById(R.id.setLocationButton);
 		setLocationButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -65,52 +108,38 @@ public class NewEventActivity extends Activity {
 				startActivityForResult(i, 1);
 			}
 		});
-		
+
+		// Save the Event into the Database.
 		Button saveEventButton = (Button) findViewById(R.id.saveEventButton);
 		saveEventButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				me.setDate(newEventMonth, newEventDay, newEventYear);
-				me.setName(findViewById(R.id.eventName).toString());
-				me.setLocation(new LatLng(newLat,newLong));
-				SharedPreferences appSharedPrefs = PreferenceManager
-						  .getDefaultSharedPreferences(getApplicationContext());
-						  Editor prefsEditor = appSharedPrefs.edit();
-						  Gson gson = new Gson();
-						  String json = gson.toJson(me);
-						  prefsEditor.putString("MyObject", json);
-						  prefsEditor.commit();
-						  Toast.makeText(getApplicationContext(), "Object stored in SharedPreferences", Toast.LENGTH_LONG).show();
-				
+				EditText nameEdit;
+				nameEdit = (EditText) findViewById(R.id.eventName);
+				if (extras != null) {
+					me = new MapEvent(nameEdit.getText().toString(), t,
+							new LatLng(newLat, newLong));
+					db.addEvent(me);
+				} else {
+					me = new MapEvent(nameEdit.getText().toString(), t,
+							new LatLng(newLat, newLong));
+					db.addEvent(me);
+				}
+				db.close();
 				finish();
 			}
 		});
 	}
-	
-	public static Object deserializeObject(byte[] b) { 
-	    try { 
-	      ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(b)); 
-	      Object object = in.readObject(); 
-	      in.close(); 
-	 
-	      return object; 
-	    } catch(ClassNotFoundException cnfe) { 
-	      Log.e("deserializeObject", "class not found error", cnfe); 
-	 
-	      return null; 
-	    } catch(IOException ioe) { 
-	      Log.e("deserializeObject", "io error", ioe); 
-	 
-	      return null; 
-	    } 
-	  } 
+
+	// If coming back from the SetEventLocation activity, set Latitude and
+	// Longitude.
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 1) {
 			if (resultCode == RESULT_OK) {
 				CharSequence longitude = data.getStringExtra("longitude");
 				CharSequence latitude = data.getStringExtra("latitude");
-				newLat=Double.parseDouble((String) latitude);
-				newLong=Double.parseDouble((String) longitude);
+				newLat = Double.parseDouble((String) latitude);
+				newLong = Double.parseDouble((String) longitude);
 				EditText editLong = (EditText) findViewById(R.id.newEventLongitude);
 				EditText editLat = (EditText) findViewById(R.id.newEventLatitude);
 				editLong.setText(longitude);
