@@ -1,12 +1,7 @@
 package data.comm.eagleRemind;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.List;
+import data.comm.eagleRemind.MySQLiteHelper;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -20,10 +15,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,33 +35,67 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 	private static final float ACCURACY = 3.0f;
 	public LocationClient mLocationClient;
 	public Location testLocation = createLocation(LAT, LNG, ACCURACY);
-	ArrayList<MapEvent> currentEvents;
-	public static final String PREFS_NAME = "MyPrefsFile";
+	MySQLiteHelper helper;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		helper = new MySQLiteHelper(getApplicationContext());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mLocationClient = new LocationClient(this, this, this);
 
 		mMap = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
-		mMap.setOnMapClickListener(this);
 
-		LatLng latLng = new LatLng(testLocation.getLatitude(),
-				testLocation.getLongitude());
-		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng,
-				15);
-		mMap.animateCamera(cameraUpdate);
-		mMap.addMarker(new MarkerOptions().position(new LatLng(LAT, LNG)).icon(
-				BitmapDescriptorFactory.fromResource(R.drawable.map_marker)));
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		helper.close();
 	}
 
 	@Override
 	protected void onStart() {
+		LatLng latLng;
 		super.onStart();
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			double zoomToLatitude = extras.getDouble("latitude");
+			double zoomToLongitude = extras.getDouble("longitude");
+			latLng = new LatLng(zoomToLatitude, zoomToLongitude);
+			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+					latLng, 15);
+			mMap.animateCamera(cameraUpdate);
+			Log.d("Lat/Lng debug", "" + zoomToLatitude + ", " + zoomToLongitude);
+		} else {
+			latLng = new LatLng(testLocation.getLatitude(),
+					testLocation.getLongitude());
+			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+					latLng, 15);
+			mMap.animateCamera(cameraUpdate);
+			mMap.addMarker(new MarkerOptions().position(new LatLng(LAT, LNG))
+					.icon(BitmapDescriptorFactory
+							.fromResource(R.drawable.map_marker)));
+		}
 		// Connect the client.
 		mLocationClient.connect();
+		MySQLiteHelper helper = new MySQLiteHelper(getApplicationContext());
+		helper.getWritableDatabase();
+		try {
+			List<MapEvent> events;
+			events = helper.getAllEvents();
+			for (int i = 0; i < events.size(); i++) {
+				mMap.addMarker(new MarkerOptions().position(
+						new LatLng(events.get(i).getLatitude(), events.get(i)
+								.getLongitude())).icon(
+						BitmapDescriptorFactory
+								.fromResource(R.drawable.map_marker)));
+			}
+		} catch (Exception e) {
+			Log.d("No Events Error", "No Events to show!");
+		}
+		helper.close();
 	}
 
 	/*
@@ -139,6 +165,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 	/*
 	 * Called by Location Services if the attempt to Location Services fails.
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		/*

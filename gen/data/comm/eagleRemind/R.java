@@ -222,29 +222,34 @@ containing a value of this type.
         public static final int map_marker=0x7f02001d;
     }
     public static final class id {
-        public static final int AddEvent=0x7f050017;
-        public static final int LinearLayout1=0x7f050009;
-        public static final int action_settings=0x7f050016;
-        public static final int addEventCalendar=0x7f05000d;
-        public static final int addMarkerButton=0x7f050007;
-        public static final int eventDateLabel=0x7f05000c;
-        public static final int eventName=0x7f05000b;
-        public static final int eventNameLabel=0x7f05000a;
-        public static final int eventTimeLabel=0x7f05000e;
+        public static final int AddEvent=0x7f050019;
+        public static final int LinearLayout1=0x7f05000b;
+        public static final int action_settings=0x7f050018;
+        public static final int addEventButton=0x7f050008;
+        public static final int addEventCalendar=0x7f05000f;
+        public static final int dataTable=0x7f050006;
+        public static final int eventDateLabel=0x7f05000e;
+        public static final int eventName=0x7f05000d;
+        public static final int eventNameLabel=0x7f05000c;
+        public static final int eventTimeLabel=0x7f050010;
+        public static final int group_popupmenu=0x7f05001a;
         public static final int hybrid=0x7f050004;
-        public static final int latitudeLabel=0x7f050010;
-        public static final int longitudeLabel=0x7f050011;
+        public static final int latitudeLabel=0x7f050012;
+        public static final int longitudeLabel=0x7f050013;
+        public static final int manageEventsButton=0x7f050009;
         public static final int map=0x7f050005;
-        public static final int newEventLatitude=0x7f050012;
-        public static final int newEventLongitude=0x7f050013;
-        public static final int newEventTime=0x7f05000f;
+        public static final int menu1=0x7f05001b;
+        public static final int menu2=0x7f05001c;
+        public static final int newEventLatitude=0x7f050014;
+        public static final int newEventLongitude=0x7f050015;
+        public static final int newEventTime=0x7f050011;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int openMapButton=0x7f050006;
+        public static final int openMapButton=0x7f050007;
         public static final int satellite=0x7f050002;
-        public static final int saveEventButton=0x7f050015;
-        public static final int scroll=0x7f050008;
-        public static final int setLocationButton=0x7f050014;
+        public static final int saveEventButton=0x7f050017;
+        public static final int scroll=0x7f05000a;
+        public static final int setLocationButton=0x7f050016;
         public static final int terrain=0x7f050003;
     }
     public static final class integer {
@@ -252,14 +257,16 @@ containing a value of this type.
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int activity_navigation=0x7f030001;
-        public static final int activity_new_event=0x7f030002;
+        public static final int activity_manage_events=0x7f030001;
+        public static final int activity_navigation=0x7f030002;
+        public static final int activity_new_event=0x7f030003;
     }
     public static final class menu {
         public static final int add_marker=0x7f0a0000;
         public static final int main=0x7f0a0001;
-        public static final int navigation=0x7f0a0002;
-        public static final int new_event=0x7f0a0003;
+        public static final int manage_events=0x7f0a0002;
+        public static final int navigation=0x7f0a0003;
+        public static final int new_event=0x7f0a0004;
     }
     public static final class string {
         public static final int action_settings=0x7f06001b;
@@ -360,6 +367,7 @@ containing a value of this type.
         public static final int common_signin_button_text_long=0x7f060013;
         public static final int hello_world=0x7f06001c;
         public static final int title_activity_add_marker=0x7f06001e;
+        public static final int title_activity_manage_events=0x7f060021;
         public static final int title_activity_navigation=0x7f06001d;
         public static final int title_activity_new_event=0x7f06001f;
         public static final int title_activity_set_event=0x7f060020;
