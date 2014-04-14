@@ -213,3 +213,5 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+src/data/comm/eagleRemind/MainActivity.java
+src/data/comm/eagleRemind/NewEventActivity.java
