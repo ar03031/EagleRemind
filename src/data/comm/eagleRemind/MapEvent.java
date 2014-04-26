@@ -14,7 +14,6 @@ public class MapEvent {
 	LatLng location;
 
 	public MapEvent() {
-
 	}
 
 	public MapEvent(String name, Time time, LatLng location) {

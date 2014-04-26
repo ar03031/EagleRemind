@@ -2,20 +2,29 @@ package data.comm.eagleRemind;
 
 import java.util.List;
 
+import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.Button;
 import android.view.*;
 import data.comm.eagleRemind.MySQLiteHelper;
+import android.app.IntentService;
+import android.app.Service;
+import android.widget.TextView;
+import android.widget.Toast;
+
 
 public class NavigationActivity extends Activity {
-
+	private NfcAdapter mNfcAdapter;
 	//Instantiate a database for the App to read.
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		MySQLiteHelper db = new MySQLiteHelper(this);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigation);
@@ -59,8 +68,14 @@ public class NavigationActivity extends Activity {
 			Log.d("Error", "No records to show!");
 		}
 
+		// Here's where I start the ERPUllService which starts our service in the background when this Activity is called
+		startService(new Intent(ERPullService.class.getName()));
+		
 	}
 
+	protected void onResume(Bundle savedInstanceState){
+		mNfcAdapter.disableForegroundDispatch(this);
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

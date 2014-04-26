@@ -4,10 +4,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -18,6 +24,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 import data.comm.eagleRemind.MySQLiteHelper;
 
@@ -25,16 +32,17 @@ public class ManageEvents extends Activity {
 
 	Button dataLocationButton;
 	List<MapEvent> events;
+	NfcAdapter mNfcAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_manage_events);
 		// Show the Up button in the action bar.
 		setupActionBar();
 		// Populate the Table
 		populateTable();
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 	}
 
 	// Read the database to populate the table.
@@ -148,32 +156,43 @@ public class ManageEvents extends Activity {
 		} else if (item.getTitle() == "Delete Event") {
 			deleteEvent((View) findViewById(item.getItemId()));
 		} else if (item.getTitle() == "Share Event") {
-			// function2(item.getItemId());
+			shareEvent((View) findViewById(item.getItemId()));
 		} else {
 			return false;
 		}
 		return true;
 	}
+
 	@Override
-	public void onResume(){
+	public void onResume() {
 		super.onResume();
 		populateTable();
 	}
 	
-	public void editEvent(View v){
+	public void shareEvent(View v){
+		int id=v.getId();
+		Intent i = new Intent(getApplicationContext(), ShareActivity.class);
+		i.putExtra("eventName", events.get(id - 1).name);
+		i.putExtra("eventTimeDate", events.get(id - 1).getTime());
+		i.putExtra("eventLatitude", events.get(id - 1).getLatitude());
+		i.putExtra("eventLongitude", events.get(id - 1).getLongitude());
+		startActivity(i);
+	}
+
+	public void editEvent(View v) {
 		int id = v.getId();
-		Intent i = new Intent(getApplicationContext(),NewEventActivity.class);
-		i.putExtra("eventName", events.get(id-1).name);
-		i.putExtra("eventTimeDate", events.get(id-1).getTime());
-		i.putExtra("eventLatitude", events.get(id-1).getLatitude());
-		i.putExtra("eventLongitude", events.get(id-1).getLongitude());
+		Intent i = new Intent(getApplicationContext(), NewEventActivity.class);
+		i.putExtra("eventName", events.get(id - 1).name);
+		i.putExtra("eventTimeDate", events.get(id - 1).getTime());
+		i.putExtra("eventLatitude", events.get(id - 1).getLatitude());
+		i.putExtra("eventLongitude", events.get(id - 1).getLongitude());
 		deleteEvent(v);
 		startActivity(i);
 	}
 
 	// Deletes an Event from the database.
 	public void deleteEvent(View v) {
-		int id=v.getId();
+		int id = v.getId();
 		final MySQLiteHelper helper = new MySQLiteHelper(
 				getApplicationContext());
 		MapEvent eventToDelete = events.get(id - 1);

@@ -16,7 +16,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
@@ -28,7 +33,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme" >
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -49,6 +54,11 @@
         <activity
             android:name="data.comm.eagleRemind.NewEventActivity"
             android:label="@string/title_activity_new_event" >
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.com.example.android.beam" />
+            </intent-filter>
         </activity>
         <activity
             android:name="data.comm.eagleRemind.SetEventLocation"
@@ -61,6 +71,31 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="data.comm.eagleRemind.NavigationActivity" />
+        </activity>
+
+        <!-- Setting the "process" attribute to "remote" tells Android to run our service in a separate process from the rest of the application. This allows it to run all the time; like we want it to -->
+
+
+        <!-- The action name is like the ID that we will give android to start our service. Without giving this to android we can't use Intent to start our service from other Android components -->
+
+        <service
+            android:name="data.comm.eagleRemind.ERPullService"
+            class=".ERPullService"
+            android:process=":remote" >
+            <intent-filter>
+                <action
+                    android:name="data.comm.eagleRemind.ERPullService"
+                    android:exported="false" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name="data.comm.eagleRemind.ShareActivity"
+            android:label="@string/title_activity_share"
+            android:parentActivityName="data.comm.eagleRemind.ManageEvents" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="data.comm.eagleRemind.ManageEvents" />
         </activity>
     </application>
 

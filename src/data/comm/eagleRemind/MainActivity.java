@@ -6,6 +6,7 @@ import data.comm.eagleRemind.MySQLiteHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,8 +16,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -26,15 +29,16 @@ import android.widget.Toast;
 public class MainActivity extends android.support.v4.app.FragmentActivity
 		implements OnMapClickListener,
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, android.location.LocationListener {
 
 	private GoogleMap mMap;
 	private static final String PROVIDER = "flp";
-	private static final double LAT = 32.4084121;
-	private static final double LNG = -81.774;
-	private static final float ACCURACY = 3.0f;
+	private static double lat ;
+	private static double lng ;
 	public LocationClient mLocationClient;
-	public Location testLocation = createLocation(LAT, LNG, ACCURACY);
+	protected LocationManager locationManager;
+	protected LocationListener locationListener;
+
 	MySQLiteHelper helper;
 
 	@Override
@@ -43,6 +47,11 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mLocationClient = new LocationClient(this, this, this);
+		locationManager = (LocationManager) this
+				.getSystemService(Context.LOCATION_SERVICE);
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+		
 
 		mMap = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
@@ -56,8 +65,16 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 	}
 
 	@Override
+	public void onLocationChanged(Location location) {
+		lat= location.getLatitude();
+		lng= location.getLongitude();
+		Log.d("New coords", "Lat: "+lat);
+		Log.d("New coords", "Lng: "+lng);
+	}
+
+	@Override
 	protected void onStart() {
-		LatLng latLng;
+		LatLng latLng=null;
 		super.onStart();
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -69,14 +86,15 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 			mMap.animateCamera(cameraUpdate);
 			Log.d("Lat/Lng debug", "" + zoomToLatitude + ", " + zoomToLongitude);
 		} else {
-			latLng = new LatLng(testLocation.getLatitude(),
-					testLocation.getLongitude());
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+			latLng = new LatLng(lat,
+					lng);
 			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
 					latLng, 15);
 			mMap.animateCamera(cameraUpdate);
-			mMap.addMarker(new MarkerOptions().position(new LatLng(LAT, LNG))
+			mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
 					.icon(BitmapDescriptorFactory
-							.fromResource(R.drawable.map_marker)));
+							.fromResource(R.drawable.little_red_dot)));
 		}
 		// Connect the client.
 		mLocationClient.connect();
@@ -147,7 +165,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 	public void onConnected(Bundle dataBundle) {
 		// Display the connection status
 		Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-		mLocationClient.setMockLocation(testLocation);
+
 
 	}
 
@@ -183,6 +201,24 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 			 */
 			showDialog(connectionResult.getErrorCode());
 		}
+	}
+
+	@Override
+	public void onProviderDisabled(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
