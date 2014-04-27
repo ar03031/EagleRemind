@@ -37,7 +37,7 @@ public class NewEventActivity extends Activity {
 	public Time t = new Time();
 	protected double newLat;
 	protected double newLong;
-	MySQLiteHelper db = new MySQLiteHelper(this);
+
 	MapEvent me = new MapEvent();
 
     NfcAdapter mNfcAdapter;
@@ -52,6 +52,7 @@ public class NewEventActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		final MySQLiteHelper db = new MySQLiteHelper(this);
 		setContentView(R.layout.activity_new_event);
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		
@@ -152,6 +153,7 @@ public class NewEventActivity extends Activity {
 		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
 			processIntent(getIntent());
 		}
+		db.close();
 	}
 
 	// If coming back from the SetEventLocation activity, set Latitude and

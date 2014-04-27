@@ -80,8 +80,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, android.l
 				Log.d("Print Debug", events.get(i).toString());
 			}
 		} catch (Exception e) {
-			Log.d("Error", "No records to show!");
-		}
+			Log.d("Error", "No records to show!");}
+		db.close();
 		// Here's where I start the ERPUllService which starts our service in the background when this Activity is called
 		startService(new Intent(ERPullService.class.getName()));
 		

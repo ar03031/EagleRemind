@@ -46,7 +46,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 		setContentView(R.layout.activity_main);
 		//mLocationClient = new LocationClient(this, this, this);
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 45000, 100, this);
 		
 
 		mMap = ((SupportMapFragment) getSupportFragmentManager()
@@ -114,7 +114,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 	@Override
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
-		//mLocationClient.disconnect();
+		helper.close();
 		super.onStop();
 	}
 
@@ -129,6 +129,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.AddEvent:
+			helper.close();
 			Intent i = new Intent(getApplicationContext(),
 					NewEventActivity.class);
 			startActivity(i);
