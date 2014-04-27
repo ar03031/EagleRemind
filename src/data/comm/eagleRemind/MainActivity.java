@@ -33,8 +33,6 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 
 	private GoogleMap mMap;
 	private static final String PROVIDER = "flp";
-	private static double lat ;
-	private static double lng ;
 	public LocationClient mLocationClient;
 	protected LocationManager locationManager;
 	protected LocationListener locationListener;
@@ -46,9 +44,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 		helper = new MySQLiteHelper(getApplicationContext());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		mLocationClient = new LocationClient(this, this, this);
-		locationManager = (LocationManager) this
-				.getSystemService(Context.LOCATION_SERVICE);
+		//mLocationClient = new LocationClient(this, this, this);
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 		
@@ -66,10 +62,6 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 
 	@Override
 	public void onLocationChanged(Location location) {
-		lat= location.getLatitude();
-		lng= location.getLongitude();
-		Log.d("New coords", "Lat: "+lat);
-		Log.d("New coords", "Lng: "+lng);
 	}
 
 	@Override
@@ -87,17 +79,17 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 			Log.d("Lat/Lng debug", "" + zoomToLatitude + ", " + zoomToLongitude);
 		} else {
 			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-			latLng = new LatLng(lat,
-					lng);
+			latLng = new LatLng(NavigationActivity.lat,
+					NavigationActivity.lng);
 			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
 					latLng, 15);
 			mMap.animateCamera(cameraUpdate);
-			mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
+			mMap.addMarker(new MarkerOptions().position(new LatLng(NavigationActivity.lat, NavigationActivity.lng))
 					.icon(BitmapDescriptorFactory
 							.fromResource(R.drawable.little_red_dot)));
 		}
 		// Connect the client.
-		mLocationClient.connect();
+		//mLocationClient.connect();
 		MySQLiteHelper helper = new MySQLiteHelper(getApplicationContext());
 		helper.getWritableDatabase();
 		try {
@@ -122,7 +114,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity
 	@Override
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
-		mLocationClient.disconnect();
+		//mLocationClient.disconnect();
 		super.onStop();
 	}
 

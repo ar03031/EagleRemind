@@ -2,6 +2,12 @@ package data.comm.eagleRemind;
 
 import java.util.List;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationListener;
+
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
@@ -19,11 +25,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class NavigationActivity extends Activity {
+public class NavigationActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, android.location.LocationListener  {
 	private NfcAdapter mNfcAdapter;
+	public LocationManager locationManager;
+	public LocationListener locationListener;
+	public static double lat ;
+	public static double lng ;
 	//Instantiate a database for the App to read.
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+
+		
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		MySQLiteHelper db = new MySQLiteHelper(this);
 		super.onCreate(savedInstanceState);
@@ -67,7 +82,6 @@ public class NavigationActivity extends Activity {
 		} catch (Exception e) {
 			Log.d("Error", "No records to show!");
 		}
-
 		// Here's where I start the ERPUllService which starts our service in the background when this Activity is called
 		startService(new Intent(ERPullService.class.getName()));
 		
@@ -82,6 +96,50 @@ public class NavigationActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.navigation, menu);
 		return true;
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		lat= location.getLatitude();
+		lng= location.getLongitude();
+		//Log.d("New coords", "Lat: "+lat);
+		//Log.d("New coords", "Lng: "+lng);		
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult result) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

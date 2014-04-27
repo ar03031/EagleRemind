@@ -7,7 +7,7 @@ import android.text.format.Time;
 //The MapEvent is the core functionality of this application. It is a class that represents all of
 //the objects on the map that a user specifies.
 public class MapEvent {
-	private int id;
+	int id;
 	String name;
 	Time time;
 	int year, month, date;
